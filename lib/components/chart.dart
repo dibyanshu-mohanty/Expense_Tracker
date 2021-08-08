@@ -40,7 +40,7 @@ class Chart extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: groupedTransactionsValues.map((e) {
-              return ChartBar(
+              return  ChartBar(
                   label: e['day'].toString(),
                   amount: (e['amount'] as double),
                   spendPercent:
@@ -63,19 +63,18 @@ class ChartBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      fit: FlexFit.tight,
-      child: Column(
+    return LayoutBuilder(builder: (ctx,constraints){
+      return  Column(
         children: [
           Container(
-              height: 20,
+              height: constraints.maxHeight * 0.15,
               child: FittedBox(
                   child: Text("\u{20B9} ${amount.toStringAsFixed(0)}"))),
           SizedBox(
-            height: 4,
+            height: constraints.maxHeight * 0.05,
           ),
           Container(
-            height: 70,
+            height: constraints.maxHeight * 0.6,
             width: 15,
             child: Stack(
               children: [
@@ -96,11 +95,14 @@ class ChartBar extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: 4,
+            height: constraints.maxHeight * 0.05,
           ),
-          Text(label),
+          Container(
+              height: constraints.maxHeight * 0.15,
+              child: FittedBox(child: Text(label))
+          ),
         ],
-      ),
-    );
+      );
+    });
   }
 }

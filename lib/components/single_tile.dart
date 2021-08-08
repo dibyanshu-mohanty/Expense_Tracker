@@ -6,34 +6,40 @@ import 'package:intl/intl.dart';
 class SingleTransaction extends StatelessWidget {
   final List<Transaction> _userTransactions;
   final Function deleteTransaction;
-  SingleTransaction(this._userTransactions , this.deleteTransaction);
+  SingleTransaction(this._userTransactions, this.deleteTransaction);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: _userTransactions.length == 0
-          ? Column(
-              children: [
-                SizedBox(
-                  height: 40.0,
+          ? LayoutBuilder(builder: (ctx, constraints) {
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 40,
+                    ),
+                    Text(
+                      "No Transactions Added",
+                      style: TextStyle(
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Quicksand'),
+                    ),
+                    SizedBox(
+                      height: 40,
+                    ),
+                    Container(
+                      height: constraints.maxHeight * 0.6,
+                      child: Image.asset(
+                        "assets/images/waiting.png",
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  "No Transactions Added",
-                  style: TextStyle(
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Quicksand'),
-                ),
-                SizedBox(
-                  height: 40.0,
-                ),
-                Image.asset(
-                  "assets/images/waiting.png",
-                  width: 160,
-                  height: 160,
-                ),
-              ],
-            )
+              );
+            })
           : ListView.builder(
               itemCount: _userTransactions.length,
               itemBuilder: (context, index) => Container(
@@ -87,7 +93,8 @@ class SingleTransaction extends StatelessWidget {
                           ],
                         ),
                         IconButton(
-                            onPressed: ( () => deleteTransaction(_userTransactions[index].id)) ,
+                            onPressed: (() =>
+                                deleteTransaction(_userTransactions[index].id)),
                             icon: Icon(
                               Icons.clear,
                               color: Colors.grey,

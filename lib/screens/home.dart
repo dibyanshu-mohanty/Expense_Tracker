@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/components/bottom_sheet.dart';
@@ -13,6 +14,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
   final List<Transaction> transaction = [  ];
+
+  bool showChart = false;
 
   List<Transaction> get _recentTransaction{
     return transaction.where((element){
@@ -43,7 +46,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   @override
   Widget build(BuildContext context) {
-    final appBar = AppBar(
+    final mediaQuery = MediaQuery.of(context);
+    final _isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final appBar =AppBar(
       title: Center(child: Text("Expense Tracker")),
       actions: [
         IconButton(
@@ -57,9 +62,47 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.add))
       ],
     );
-    return Scaffold(
+    final body = SingleChildScrollView(
+      child: Column(
+        children: [
+          if (_isLandscape) Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Show Chart"),
+              Switch.adaptive(
+                value: showChart,
+                onChanged: (val){
+                  setState(() {
+                    showChart=val;
+                  });
+                },
+              )
+            ],
+          ),
+          if (!_isLandscape) Container(
+              height: (mediaQuery.size.height - appBar.preferredSize.height - mediaQuery.padding.top) * 0.35,
+              child: Chart(_recentTransaction)
+          ),
+          if (!_isLandscape) Container(
+              height: (mediaQuery.size.height - appBar.preferredSize.height - mediaQuery.padding.top) * 0.6,
+              child: SingleTransaction(transaction,_deleteTransaction)
+          ),
+          if (_isLandscape)
+            showChart == true
+                ? Container(
+                height: (mediaQuery.size.height - appBar.preferredSize.height - mediaQuery.padding.top) * 0.7,
+                child: Chart(_recentTransaction)
+            )
+                : Container(
+                height: (mediaQuery.size.height - appBar.preferredSize.height - mediaQuery.padding.top) * 0.6,
+                child: SingleTransaction(transaction,_deleteTransaction)
+            ),
+        ],
+      ),
+    );
+    return Platform .isIOS ? CupertinoPageScaffold(child: body) : Scaffold(
       appBar: appBar,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: Platform.isAndroid ? FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(
               context: context,
@@ -72,22 +115,10 @@ class _MyHomePageState extends State<MyHomePage> {
           color: Colors.black,
         ),
         elevation: 5,
-      ),
+      )
+      : Container(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-                height: (MediaQuery.of(context).size.height - appBar.preferredSize.height - MediaQuery.of(context).padding.top) * 0.35,
-                child: Chart(_recentTransaction)
-            ),
-            Container(
-              height: (MediaQuery.of(context).size.height - appBar.preferredSize.height - MediaQuery.of(context).padding.top) * 0.6,
-                child: SingleTransaction(transaction,_deleteTransaction)
-            ),
-          ],
-        ),
-      ),
+      body: body
     );
   }
 }
